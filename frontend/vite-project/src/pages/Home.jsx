@@ -118,7 +118,10 @@ const Home = () => {
             </Modal>
             <CustomModal 
                 isOpen={isOpen}
-                onClose={onClose}
+                onClose={() => {
+                    onClose()
+                    window.location.reload()
+                }}
                 blockHash={transactionReceipt?.transactionHash}
                 from={transactionReceipt?.from}
                 to={transactionReceipt?.to}

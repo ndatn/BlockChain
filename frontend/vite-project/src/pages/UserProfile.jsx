@@ -39,7 +39,7 @@ const UserProfile = () => {
                 type === "grass" ? "green" : 
                 type === "poison" ? "purple" : 
                 type === "fire" ? "orange" : 
-                type === "flying" ? "" :
+                type === "flying" ? "gray" :
                 type === "dragon" ? "yellow" :
                 type === "water" ? "blue" : ""
               }>{type}</Button>

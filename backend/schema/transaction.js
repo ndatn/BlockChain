@@ -1,0 +1,20 @@
+const mongoose = require("mongoose")
+
+const { Schema } = mongoose
+
+const transactionModel = mongoose.model("transaction", new Schema({
+  transactionHash: {
+    type: String,
+    required: true
+  },
+  senderId: {
+    type: String,
+    required: true
+  },
+  createdDate: {
+    type: Date,
+    default: Date.now()
+  }
+}))
+
+module.exports = transactionModel

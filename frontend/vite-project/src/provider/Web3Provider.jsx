@@ -5,12 +5,8 @@ import { useState, useEffect } from "react";
 export const Web3Context = createContext()
 
 const Web3Provider = ({ children }) => {
-    const [ web3, setWeb3 ] = useState(null);
-    const [account, setAccount] = useState(null);
-
-    const setNullAccount = () => {
-        setAccount("")
-    }
+    const [ web3, setWeb3 ] = useState();
+    const [account, setAccount] = useState("");
 
     useEffect(() => {
         const connectToMetaMask = async () => {
@@ -49,7 +45,7 @@ const Web3Provider = ({ children }) => {
     const values = {
         web3,
         account,
-        setNullAccount
+        setAccount
     }
 
     return (

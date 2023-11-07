@@ -35,7 +35,14 @@ const UserProfile = () => {
           <Text>
             Type:  
              {profile?.types?.map(type => {
-              return <Button w={"100px"} mx="5px" colorScheme={type === "grass" ? "green" : type === "poison" ? "purple" : ""}>{type}</Button>
+              return <Button w={"100px"} mx="5px" colorScheme={
+                type === "grass" ? "green" : 
+                type === "poison" ? "purple" : 
+                type === "fire" ? "orange" : 
+                type === "flying" ? "" :
+                type === "dragon" ? "yellow" :
+                type === "water" ? "blue" : ""
+              }>{type}</Button>
             })}
           </Text>
         </Box>

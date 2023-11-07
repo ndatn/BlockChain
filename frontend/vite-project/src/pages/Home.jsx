@@ -1,33 +1,39 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useLayoutEffect } from 'react'
 import ProductCard from '../components/Home/ProductCard'
 import axios from 'axios'
-import { Container, Text, useDisclosure } from '@chakra-ui/react'
+import { Box, Container, Modal, ModalContent, ModalOverlay, Text, useDisclosure, ModalHeader, ModalBody, ModalFooter, Button } from '@chakra-ui/react'
 import Web3 from 'web3'
 import CustomModal from '../components/base/CustomModal'
 import { useContext } from 'react'
 import { Web3Context } from '../provider/Web3Provider'
+import { useNavigate } from 'react-router-dom'
 
 const Home = () => {
-    const [ books, setBooks ] = useState([])
+    const [ pokemons, setPokemons ] = useState([])
     const { web3, account } = useContext(Web3Context)
     const [ transactionReceipt, setTransactionReceipt ] = useState({})
     const { isOpen, onClose, onOpen } = useDisclosure()
+    const [ transactionPayload, setTransactionPayload ] = useState({})
+    const { isOpen: isWarningModalOpen, onOpen: onWarningModalOpen, onClose: onWarningModalClose } = useDisclosure()
+    const navigate = useNavigate()
     
-    useEffect(() => {
+    useLayoutEffect(() => {
         (async () => {
             try {
-                var response = await axios.get("http://localhost:8200/books")
-                setBooks(response.data)
+                var response = await axios.get("http://localhost:8200/pokemons")
+                setPokemons(response.data.filter(pokemon => {
+                    return pokemon.accountId !== account
+                }))
             } catch (error) {
                 console.log(error)
             }
         })()
-    }, [])
+    }, [account])
 
-    const handleCreateTransaction = async () => {
+    const handleCreateTransaction = async (recipientAddress, amountToSend) => {
         if (web3 && account) {
-            const recipientAddress = '0x7F745e80706FBA56e2C2de221d153c75ab4029c3'; // Specify the recipient's Ethereum address
-            const amountToSend = 1; // Specify the amount of ETH to send
+            // const recipientAddress = '0x65758ca5bD89120E3F87B555127288ae9740dc6b'; // Specify the recipient's Ethereum address
+            // const amountToSend = 1; // Specify the amount of ETH to send
         
             try {
             const gasPrice = await web3.eth.getGasPrice();
@@ -40,48 +46,83 @@ const Home = () => {
                 gas: gasLimit,
             };
         
-            const signedTransaction = await web3.eth.accounts.signTransaction(
-                transactionParameters,
-                '20453bc702182298d9a2342d206394cf68258b79a2ddc60fc9f473e75f96b9cc'
-            );
-        
-            const transactionReceipt = await web3.eth.sendSignedTransaction(
-                signedTransaction.rawTransaction
-            );
-        
-            // console.log('Transaction Receipt:', transactionReceipt);
-            setTransactionReceipt(transactionReceipt)
-            onOpen()
+            web3.eth.sendTransaction(transactionParameters)
+            .on('transactionHash', (hash) => {
+              console.log('Transaction hash:', hash);
+              // Transaction has been sent
+            })
+            .on('receipt', (receipt) => {
+              console.log('Transaction receipt:', receipt);
+              // Transaction has been confirmed
+              onOpen()
+              setTransactionReceipt(receipt)
+              axios.post("http://localhost:8200/transactions", {
+                transactionHash: receipt?.transactionHash,
+                senderId: receipt?.from
+              }).then(() => {}).catch(error => console.log(error))
+            })
+            .on('error', (error) => {
+              console.error('Transaction error:', error);
+            });
             } catch (error) {
             console.error('Error while creating transaction:', error);
             }
         }
     };
 
-    console.log(transactionReceipt)
-
     return (
         <>
-            <Container mb={"10px"}>
-                <div>logged account: <Text fontWeight={"bold"}>{account}</Text></div>
+            <Container mb={"10px"} display={"flex"} maxW={"container.xl"} gap="10px" p="10px" justifyContent={"space-between"}>
+                <Box>
+                    <Box>Detected <span style={{ fontWeight: "bold", color: "#DD6B20" }}>Metamask</span> wallet account: </Box>
+                    <Text fontWeight={"bold"} color="#DD6B20">{account}</Text>
+                </Box>
+                <Button colorScheme='teal' onClick={() => navigate("/transaction")}>Transaction history</Button>
             </Container>
             <Container maxW={"container.xl"} display={"flex"} flexWrap={"wrap"} gap="10px">
-                {books.map(book => {
+                {pokemons.map(pokemon => {
                     return (
                         <ProductCard 
-                            key={book?.id}
-                            title={book.name}
-                            url={`http://localhost:8200/${book.picture}`}
-                            onClick={handleCreateTransaction}
+                            key={pokemon?.id}
+                            title={`${pokemon.name.charAt().toUpperCase()}${pokemon.name.slice(1, pokemon.length)}`}
+                            url={pokemon?.sprite}
+                            price={pokemon?.ammount}
+                            onClick={() => {
+                                onWarningModalOpen()
+                                setTransactionPayload({
+                                    ...transactionPayload,
+                                    recipientAddress: pokemon?.accountId,
+                                    amountToSend: pokemon?.ammount,
+                                    accountId: pokemon?.accountId
+                                })
+                            }}
                         />
                     )
                 })}
             </Container>
+            <Modal isOpen={isWarningModalOpen} onClose={onWarningModalClose}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Before creating transaction alert</ModalHeader>
+                    <ModalBody>
+                        <Text>By pressing the <span style={{ fontWeight: "bold", color: "teal" }}>Create transaction</span> button which means <span style={{ fontWeight: "bold", color: "teal" }}>you are ready to create a transaction</span> to buy this pokemon token from account: <span style={{ fontWeight: "bold", color: "red" }}>{transactionPayload?.accountId}</span>. Feel free to press the close button if you want to cancel it.</Text>
+                    </ModalBody>
+                    <ModalFooter display={"flex"} gap={"8px"}>
+                        <Button colorScheme='red' onClick={onWarningModalClose}>Close</Button>
+                        <Button colorScheme='teal' onClick={() => {
+                            handleCreateTransaction(transactionPayload?.recipientAddress, transactionPayload?.amountToSend)
+                            onWarningModalClose()
+                        }}>Create transaction</Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
             <CustomModal 
                 isOpen={isOpen}
                 onClose={onClose}
                 blockHash={transactionReceipt?.transactionHash}
                 from={transactionReceipt?.from}
+                to={transactionReceipt?.to}
+                // blockNumber={transactionReceipt?.value?.toString()?.slice(0, 1)}
             />
         </>
     )

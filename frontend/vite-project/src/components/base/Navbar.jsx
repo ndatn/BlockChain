@@ -18,6 +18,25 @@ const Navbar = () => {
     })()
   }, [web3, account])
 
+  const handleLoginToMetamask = async () => {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        // Request account access
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        // Accounts now exposed
+        console.log('MetaMask account:', accounts[0]);
+        if (accounts[0]) {
+          window.location.reload()
+        }
+        // You can perform further actions with the account here
+      } catch (error) {
+        console.error('MetaMask login error:', error);
+      }
+    } else {
+      console.log('MetaMask is not installed.');
+    }
+  }
+
   return (
     <Box mb="20px">
         <HStack justifyContent={"space-between"} mx="20px">
@@ -26,7 +45,7 @@ const Navbar = () => {
               <Text fontSize={"25px"} fontWeight={"extrabold"} color={"teal"}><FaEthereum /></Text>
             </Box>
             <Box>
-              <Button colorScheme={"teal"}><FaEthereum /><Text ml="10px">{balance}</Text></Button>
+              {account ? <Button colorScheme={"teal"}><FaEthereum /><Text ml="10px">{balance}</Text></Button> : <Button onClick={handleLoginToMetamask}>Login with Metamask</Button>}
             </Box>
         </HStack>
         <Outlet />

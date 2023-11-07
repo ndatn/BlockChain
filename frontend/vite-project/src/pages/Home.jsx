@@ -51,15 +51,22 @@ const Home = () => {
               console.log('Transaction hash:', hash);
               // Transaction has been sent
             })
-            .on('receipt', (receipt) => {
+            .on('receipt', async (receipt) => {
               console.log('Transaction receipt:', receipt);
               // Transaction has been confirmed
               onOpen()
               setTransactionReceipt(receipt)
-              axios.post("http://localhost:8200/transactions", {
+              await axios.post("http://localhost:8200/transactions", {
                 transactionHash: receipt?.transactionHash,
                 senderId: receipt?.from
-              }).then(() => {}).catch(error => console.log(error))
+              })
+              await axios.post("http://localhost:8200/pokemon", {
+                name: transactionPayload?.name,
+                amount: transactionPayload?.amountToSend,
+                sprite: transactionPayload?.sprite,
+                transactionHash: receipt?.transactionHash,
+                accountId: receipt?.from
+              })
             })
             .on('error', (error) => {
               console.error('Transaction error:', error);
@@ -93,7 +100,9 @@ const Home = () => {
                                     ...transactionPayload,
                                     recipientAddress: pokemon?.accountId,
                                     amountToSend: pokemon?.ammount,
-                                    accountId: pokemon?.accountId
+                                    accountId: account,
+                                    name: pokemon?.name,
+                                    sprite: pokemon?.sprite
                                 })
                             }}
                         />

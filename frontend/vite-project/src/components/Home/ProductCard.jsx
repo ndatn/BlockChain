@@ -15,7 +15,7 @@ const ProductCard = ({ url, title, onClick, price }) => {
         />
         <Box m="10px" display={"flex"} flexDirection={"column"} gap="15px">
             <Text fontSize={"18px"} fontWeight={"bold"} color={"teal"}>{title}</Text>
-            <Button overflow={"hidden"} colorScheme='teal' rounded={0} width={"100%"} onClick={onClick}>Buy with {price}<FaEthereum /></Button>
+            <Button overflow={"hidden"} colorScheme='teal' rounded={0} width={"100%"} onClick={onClick}>{price ? `Buy with ${price}` : "Click to view the transaction"}<FaEthereum /></Button>
         </Box>
     </Box>
   )

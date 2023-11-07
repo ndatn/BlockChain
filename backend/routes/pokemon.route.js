@@ -1,6 +1,7 @@
 const { Web3 } = require('web3');
 const { Router } = require("express")
-const axios = require("axios")
+const axios = require("axios");
+const pokemonBuyedModel = require('../schema/pokemonBuyed');
 
 const router = Router()
 const web3 = new Web3("http://127.0.0.1:8545")
@@ -210,6 +211,30 @@ router.get("/pokemons", async (req, res) => {
   })).splice(0, 10))
 })
 
+router.post("/pokemon", async (req, res) => {
+    const { accountId, transactionHash, name, amount, sprite } = req.body
+    const pokemonBuyed = new pokemonBuyedModel({
+        name,
+        amount,
+        sprite,
+        transactionHash,
+        accountId
+    })
+    await pokemonBuyed.save()
+    return res.json({
+        transactionHash
+    })
+})
+
+
+router.get("/pokemons/buyed/:accountId", async (req, res) => {
+    try {
+        const result = await pokemonBuyedModel.find({ accountId: req.params.accountId })
+        return res.json(result)
+    } catch (error) {
+        console.log(error)
+    }
+})
 
 
 

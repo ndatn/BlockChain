@@ -79,7 +79,7 @@ const Transaction = () => {
           })}
         </Box>
         <CustomModal 
-          blockHash={transaction?.blockHash}
+          blockHash={transaction?.hash}
           from={transaction?.from}
           to={transaction?.to}
           blockNumber={transaction?.value?.toString()?.slice(0, 1)}

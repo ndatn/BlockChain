@@ -1,13 +1,14 @@
 import { Box, Button, HStack, Heading, Text } from '@chakra-ui/react'
 import React from 'react'
 import { useContext, useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import Web3 from 'web3';
 import { Web3Context } from '../../provider/Web3Provider';
 import { FaEthereum } from 'react-icons/fa';
 
 const Navbar = () => {
   const { web3, account } = useContext(Web3Context)
+  const navigate = useNavigate()
   const [ balance, setBalance ] = useState()
   useEffect(() => {
     (async () => {
@@ -37,6 +38,10 @@ const Navbar = () => {
     }
   }
 
+  const handleNavigateToUserPage = () => {
+    navigate(`/user-profile/${account}`)
+  }
+
   return (
     <Box mb="20px">
         <HStack justifyContent={"space-between"} mx="20px">
@@ -45,7 +50,9 @@ const Navbar = () => {
               <Text fontSize={"25px"} fontWeight={"extrabold"} color={"teal"}><FaEthereum /></Text>
             </Box>
             <Box>
-              {account ? <Button colorScheme={"teal"}><FaEthereum /><Text ml="10px">{balance}</Text></Button> : <Button onClick={handleLoginToMetamask}>Login with Metamask</Button>}
+              {account ? 
+                <Button onClick={handleNavigateToUserPage} colorScheme={"teal"}><FaEthereum /><Text ml="10px">{balance}</Text></Button> : 
+                <Button onClick={handleLoginToMetamask} colorScheme='orange'>Login with Metamask</Button>}
             </Box>
         </HStack>
         <Outlet />

@@ -115,7 +115,7 @@ const Home = () => {
                 <ModalContent>
                     <ModalHeader>Before creating transaction alert</ModalHeader>
                     <ModalBody>
-                        <Text>By pressing the <span style={{ fontWeight: "bold", color: "teal" }}>Create transaction</span> button which means <span style={{ fontWeight: "bold", color: "teal" }}>you are ready to create a transaction</span> to buy this pokemon token from account: <span style={{ fontWeight: "bold", color: "red" }}>{transactionPayload?.accountId}</span>. Feel free to press the close button if you want to cancel it.</Text>
+                        <Text>By pressing the <span style={{ fontWeight: "bold", color: "teal" }}>Create transaction</span> button which means <span style={{ fontWeight: "bold", color: "teal" }}>you are ready to create a transaction</span> to buy this pokemon token from account: <span style={{ fontWeight: "bold", color: "red" }}>{transactionPayload?.recipientAddress}</span>. Feel free to press the close button if you want to cancel it.</Text>
                     </ModalBody>
                     <ModalFooter display={"flex"} gap={"8px"}>
                         <Button colorScheme='red' onClick={onWarningModalClose}>Close</Button>

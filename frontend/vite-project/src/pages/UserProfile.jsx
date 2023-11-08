@@ -12,6 +12,7 @@ const UserProfile = () => {
   const [ pokemonBuyed, setPokemonBuyed ] = useState([])
   const [ transaction, setTransaction ] = useState()
   const { onOpen, isOpen, onClose } = useDisclosure()
+  const [ amount, setAmount ] = useState()
 
   const { web3, account } = useContext(Web3Context)
 
@@ -33,10 +34,10 @@ const UserProfile = () => {
     })()
   }, [accountId])
 
-  const handleGetTransaction = async (transaction) => {
+  const handleGetTransaction = async (transaction, amount) => {
     const transactionDetail = await web3?.eth?.getTransaction(transaction) 
     setTransaction(transactionDetail)
-    console.log(transactionDetail)
+    setAmount(amount)
     onOpen()
   }
 
@@ -81,13 +82,13 @@ const UserProfile = () => {
       </Container>
       <Container maxW={"container.lg"}>
         <Heading fontWeight={"light"} color={"teal"}>Pokemons has been buyed</Heading>
-        <Box mt="20px">
+        <Box mt="20px" display={"flex"} gap={"10px"} flexWrap={"wrap"}>
           {pokemonBuyed.map(pokemon => {
             return <ProductCard 
               key={pokemon?.id}
               title={`${pokemon?.name.charAt().toUpperCase()}${pokemon?.name.slice(1, pokemon.length)}`}
               url={pokemon?.sprite}
-              onClick={handleGetTransaction.bind(this, pokemon?.transactionHash)}
+              onClick={handleGetTransaction.bind(this, pokemon?.transactionHash, pokemon?.amount)}
             />
           })}
         </Box>
@@ -96,7 +97,7 @@ const UserProfile = () => {
         blockHash={transaction?.hash}
         from={transaction?.from}
         to={transaction?.to}
-        blockNumber={transaction?.value?.toString()?.slice(0, 1)}
+        blockNumber={amount}
         isOpen={isOpen}
         onClose={onClose}
       />

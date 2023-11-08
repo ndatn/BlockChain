@@ -58,7 +58,8 @@ const Home = () => {
               setTransactionReceipt(receipt)
               await axios.post("http://localhost:8200/transactions", {
                 transactionHash: receipt?.transactionHash,
-                senderId: receipt?.from
+                senderId: receipt?.from,
+                amount: transactionPayload?.amountToSend
               })
               await axios.post("http://localhost:8200/pokemon", {
                 name: transactionPayload?.name,

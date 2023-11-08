@@ -7,16 +7,16 @@ const router = Router()
 const web3 = new Web3("http://127.0.0.1:8545")
 
 const ammount = [
-  1,
-  2,
-  3,
-  4,
-  1,
-  2,
-  3,
-  4,
-  5,
-  1
+  0.0023,
+  0.0030,
+  0.0046,
+  0.0043,
+  0.0025,
+  0.0130,
+  0.0012,
+  0.0045,
+  0.0030,
+  0.0010
 ]
 const data = [
   {
@@ -236,7 +236,10 @@ router.get("/pokemons/buyed/:accountId", async (req, res) => {
     }
 })
 
-
+router.delete("/pokemons", async (req, res) => {
+    const result = await pokemonBuyedModel.deleteMany({})
+    return res.json(result)
+  })
 
 
 module.exports = router

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useContext } from 'react';
 import { Web3Context } from '../provider/Web3Provider';
-import { Box, Button, Text, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, Heading, Text, useDisclosure } from '@chakra-ui/react';
 import axios from 'axios';
 import CustomModal from '../components/base/CustomModal';
 
@@ -11,6 +11,7 @@ const Transaction = () => {
     const [ transactions, setTransactions ] = useState([])
     const [ transaction, setTransaction ] = useState()
     const [ createdDate, setCreatedDate ] = useState()
+    const [ amount, setAmount ] = useState()
     const { onOpen, isOpen, onClose } = useDisclosure()
 
     useEffect(() => {
@@ -19,7 +20,7 @@ const Transaction = () => {
         console.log(accounts)
         const address = accounts[0];      
         if (address !== null || address !== undefined) {
-          const response = await axios.get(`http://localhost:8200/transactions?senderId=${address.toLowerCase()}`)
+          const response = await axios.get(`http://localhost:8200/transactions?senderId=${address?.toLowerCase()}`)
           setTransactions(response.data)
         }
       })()
@@ -46,18 +47,23 @@ const Transaction = () => {
         fetchTransactions()
     }, [web3])
 
-    const handleGetTransaction = async (transaction, createdDate) => {
+    const handleGetTransaction = async (transaction, createdDate, amount) => {
       const transactionDetail = await web3?.eth?.getTransaction(transaction) 
       setTransaction(transactionDetail)
       setCreatedDate(createdDate)
+      setAmount(amount)
       onOpen()
       console.log(transactionDetail)   
     }
   return (
-    <Box px="30px" w={"100%"}>
+    <Box px="30px" w={"100%"} h={"100%"}>
         <Text>Transactions of account: <span style={{ fontWeight: "bold" }}>{account}</span></Text>
         <Text>Total transaction (In Metamask): {transactionCount.toString()}</Text>
         <Text>Total transaction (In Database): {transactions.length}</Text>
+        {transactions && transactions.length === 0 ? 
+        <Box display={"flex"} justifyContent={"center"} alignItems={"center"}>
+          <Heading fontWeight={"light"} color={"teal"}>No transaction found</Heading>
+        </Box> : 
         <Box mt="10px" w={"100%"} display={"flex"} flexDir={"column"} gap="10px" flexGrow={1}>
           {transactions.map(transaction => {
             return (
@@ -67,7 +73,7 @@ const Transaction = () => {
                 color: "white"
               }} 
               key={transaction._id}
-              onClick={handleGetTransaction.bind(this, transaction.transactionHash, transaction?.createdDate.toString())}
+              onClick={handleGetTransaction.bind(this, transaction?.transactionHash, transaction?.createdDate.toString(), transaction?.amount)}
               w={"100%"} 
               p={"30px"} 
               bg={"gray.100"} 
@@ -78,11 +84,12 @@ const Transaction = () => {
             )
           })}
         </Box>
+        }
         <CustomModal 
           blockHash={transaction?.hash}
           from={transaction?.from}
           to={transaction?.to}
-          blockNumber={transaction?.value?.toString()?.slice(0, 1)}
+          blockNumber={amount}
           isOpen={isOpen}
           onClose={onClose}
           createdDate={createdDate}

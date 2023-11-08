@@ -14,6 +14,10 @@ const transactionModel = mongoose.model("transaction", new Schema({
   createdDate: {
     type: Date,
     default: Date.now()
+  },
+  amount: {
+    type: String,
+    require: true
   }
 }))
 
